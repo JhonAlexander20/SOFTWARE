@@ -19,7 +19,7 @@ Route::get('/waiting-for-approval', function () {
     return view('auth.waiting_for_approval');
 })->name('approval.wait');
 
-// Ruta para el dashboard
+// Ruta para el dashboard y todo eso y mas
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Rutas personalizadas para gestión de usuarios
