@@ -2,22 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Laravel\Jetstream\Features;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    protected $model = User::class;
 
     /**
      * Define the model's default state.
@@ -27,15 +19,20 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'two_factor_secret' => null,
-            'two_factor_recovery_codes' => null,
+            'name' => $this->faker->name(),
+            'dni' => $this->faker->unique()->numerify('########'), // Genera un DNI ficticio
+            'ruc' => $this->faker->optional()->numerify('###########'), // Genera un RUC opcional
+            'email' => $this->faker->unique()->safeEmail(),
+            'correo' => $this->faker->optional()->safeEmail(), // Otro correo opcional
+            'celular' => $this->faker->optional()->phoneNumber(), // Genera un número de celular opcional
+            'rol' => $this->faker->randomElement(['admin', 'empresa', 'postulante', 'supervisor']), // Asigna un rol aleatorio
+            'archivo_cv' => $this->faker->optional()->word() . '.pdf', // Genera un nombre de archivo de CV ficticio
+            'password' => Hash::make('password'), // Contraseña por defecto
             'remember_token' => Str::random(10),
-            'profile_photo_path' => null,
-            'current_team_id' => null,
+            'is_approved' => $this->faker->boolean(), // Estado de aprobación aleatorio
+            'created_at' => now(),
+            'updated_at' => now(),
+            'email_verified_at' => now(), // Establece la verificación de email por defecto
         ];
     }
 
@@ -47,26 +44,5 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
-    }
-
-    /**
-     * Indicate that the user should have a personal team.
-     */
-    public function withPersonalTeam(?callable $callback = null): static
-    {
-        if (! Features::hasTeamFeatures()) {
-            return $this->state([]);
-        }
-
-        return $this->has(
-            Team::factory()
-                ->state(fn (array $attributes, User $user) => [
-                    'name' => $user->name.'\'s Team',
-                    'user_id' => $user->id,
-                    'personal_team' => true,
-                ])
-                ->when(is_callable($callback), $callback),
-            'ownedTeams'
-        );
     }
 }

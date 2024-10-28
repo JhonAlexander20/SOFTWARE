@@ -170,21 +170,11 @@ class UsuarioController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-
-        // Eliminar la foto de perfil si existe
-        if ($user->profile_photo_path) {
-            Storage::disk('public')->delete($user->profile_photo_path);
-        }
-
-        // Eliminar el archivo CV si existe
-        if ($user->archivo_cv) {
-            Storage::disk('public')->delete($user->archivo_cv);
-        }
-
         $user->delete();
-
+    
         return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado exitosamente.');
     }
+    
     public function pending()
     {
         // Obtener todos los usuarios no aprobados
@@ -199,11 +189,15 @@ class UsuarioController extends Controller
     public function approve($id)
     {
         $user = User::findOrFail($id);
-        $user->is_approved = 1; // Marcar como aprobado
+        $user->is_approved = true;
         $user->save();
-
+    
         return redirect()->route('usuarios.pending')->with('success', 'Usuario aprobado exitosamente.');
     }
+    
+    
+    
+
     public function show($id)
 {
     $user = User::findOrFail($id);
