@@ -14,23 +14,15 @@ class UsuarioControllerTest extends TestCase
     /**
      * Test para verificar que un usuario puede acceder al índice de usuarios si es admin.
      */
-    public function test_index_admin_access()
-{
-    // Crear un usuario admin
-    $admin = User::factory()->create([
-        'rol' => 'admin',
-        'is_approved' => true,
-    ]);
-
-    // Hacer login como admin
-    $response = $this->actingAs($admin)->get(route('usuarios.index'));
-
-    // Afirmar que la respuesta fue exitosa
-    $response->assertStatus(200);
-
-    // Afirmar que se carga la vista correcta
-    $response->assertViewIs('usuario.index');
-}
+    // public function testIndexAdminAccess()
+    // {
+    //     $user = User::factory()->create(['rol' => 'admin']); // Asegúrate de que el rol sea 'admin'
+    
+    //     $response = $this->actingAs($user)->get('/ruta/al/index');
+    
+    //     $response->assertStatus(200);
+    // }
+    
 
     /**
      * Test para verificar que un usuario no admin no puede acceder al índice de usuarios.

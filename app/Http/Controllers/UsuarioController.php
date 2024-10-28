@@ -13,35 +13,34 @@ class UsuarioController extends Controller
 {
     public function index(Request $request)
     {
+        // Verificar si el usuario está autenticado
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Por favor inicia sesión.');
+        }
+    
         // Verificar si el usuario tiene el rol de 'admin'
         if (Auth::user()->rol !== 'admin') {
-            // Redirigir al dashboard con un mensaje de acceso denegado
             return redirect()->route('dashboard')->with('error', 'Acceso denegado.');
         }
-
+    
         $search = $request->get('search');
-        $rol = $request->get('rol'); // Obtener el filtro de rol
-
-        // Obtener todos los usuarios o realizar una búsqueda si hay un término
-        $users = User::where('is_approved', 1) // Agregar esta condición
-
-        ->when($search, function ($query, $search) {
+        $rol = $request->get('rol');
+    
+        $users = User::where('is_approved', 1)
+            ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('email', 'like', '%' . $search . '%');
+                             ->orWhere('email', 'like', '%' . $search . '%');
             })
-        ->when($rol, function ($query, $rol) {
-                return $query->where('rol', $rol); // Aplicar filtro de rol si está presente
+            ->when($rol, function ($query, $rol) {
+                return $query->where('rol', $rol);
             })
-            ->paginate(10); // Paginación de 10 resultados por página
-            // Contar usuarios pendientes de aprobación
+            ->paginate(10);
+    
         $pendingUsersCount = User::where('is_approved', false)->count();
-
-        // Pasar la variable $pendingUsersCount a la vista
+    
         return view('usuario.index', compact('users', 'pendingUsersCount'));
-
-
     }
-
+    
 
     /**
      * Show the form for creating a new user.
